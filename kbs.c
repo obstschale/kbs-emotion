@@ -1,5 +1,5 @@
 #include "lib/kbs.h"
-#include "lib/dempster/dempster.h"
+#include "lib/dempster/dempster.c"
 
 #ifndef TRUE
 #define TRUE 1
@@ -11,6 +11,7 @@
 int main(int argc, char const *argv[])
 {
 	FILE *fp;
+	int i;
 	char buffer[80];
 	struct set * start;
 	struct set * observation;
@@ -30,7 +31,6 @@ int main(int argc, char const *argv[])
 		observation = start;
 		observation->prev = NULL;
 		observation->next = NULL;
-
 
 		// Read first line to skip titles
 		// loop start with first line of numbers
@@ -61,7 +61,7 @@ int main(int argc, char const *argv[])
 			observation->forehead = atof( pch );
 			pch = strtok( NULL, ";" );
 			observation->mouth = atof( pch );
-			print_set(observation);
+			// print_set(observation);
 
 			// First data is saved
 			// so next data is not the
@@ -82,8 +82,46 @@ int main(int argc, char const *argv[])
 	forehead_max = find_max_value( start, "forehead" );
 	forehead_min = find_min_value( start, "forehead" );
 
-	printf("max: %5.3f\nmin: %5.3f\n", eye_max, eye_min);
-	printf("max: %5.3f\nmin: %5.3f\n", mouth_max, mouth_min);
-	printf("max: %5.3f\nmin: %5.3f\n", forehead_max, forehead_min);
+	// printf("max: %5.3f\nmin: %5.3f\n", eye_max, eye_min);
+	// printf("max: %5.3f\nmin: %5.3f\n", mouth_max, mouth_min);
+	// printf("max: %5.3f\nmin: %5.3f\n", forehead_max, forehead_min);
+
+	// @TODO: calculate entry values for each pair
+
+	// {Angst, Ueberraschung, Verachtung, Ekel, Wut}
+	const int entry1[5] = {0,0,1,1,0}; // Augen
+	const int entry2[5] = {0,0,0,0,1}; // Stirn
+	const int entry3[5] = {0,0,0,1,1}; // Mund
+
+	basicMeasure m1, m2, m3, *res1, *res2;
+	set *p1, *p2, *p3;
+	p1 = createAlternatives((int *) entry1, 5);
+	p2 = createAlternatives((int *) entry2, 5);
+	p3 = createAlternatives((int *) entry3, 5);
+	createBasicMeasure(&m1,5);
+	addMeasureEntry(&m1,*p1,0.714);
+	printBasicMeasure(&m1);
+
+	createBasicMeasure(&m2,5);
+	addMeasureEntry(&m2,*p2,0.904);
+	printBasicMeasure(&m2);
+	printf("accumulate ...\n");
+
+	res1 = getAccumulatedMeasure(&m1,&m2);
+	printBasicMeasure(res1);
+
+	createBasicMeasure(&m3,5);
+	addMeasureEntry(&m3,*p3,0.866);
+	printBasicMeasure(&m3);
+	printf("accumulate ...\n");
+
+	res2 = getAccumulatedMeasure(res1,&m3);
+	printBasicMeasure(res2);
+	printf(  " Nr : Pl(x)  |  B(x)   |  Z(x) \n");
+  
+  for (i=0;i<5;i++)
+  {
+    printf("[%d] : %5.3f  |  %5.3f  | %5.3f \n", i, plausibility(res2,i), singleBelief(res2,i), singleDoubt(res2,i));
+  }
 	return 0;
 }
