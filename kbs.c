@@ -1,4 +1,5 @@
-#include "kbs.h"
+#include "lib/kbs.h"
+#include "lib/dempster/dempster.h"
 
 
 int main(int argc, char const *argv[])
