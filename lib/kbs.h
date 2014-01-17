@@ -21,8 +21,8 @@ void print_set( struct set * obs) {
 }
 
 void show_all_sets( struct set * ptr ) {
-	while ( ptr->next != NULL ) {
+	do {
 		print_set( ptr );
 		ptr = ptr->next;
-	}
+	} while ( ptr != NULL );
 }
