@@ -17,8 +17,8 @@ int main(int argc, char const *argv[])
 	struct set * temp;
 	char * pch;
 	int firstPtr = TRUE;
-	int eye_max, mouth_max, forehead_max;
-	int eye_min, mouth_min, forehead_min;
+	float eye_max, mouth_max, forehead_max;
+	float eye_min, mouth_min, forehead_min;
 
 	// open read only
 	fp = fopen("Files/E_013_Beispieldatei.csv","r");
@@ -54,14 +54,14 @@ int main(int argc, char const *argv[])
 
 			// save data in sets
 			pch = strtok( buffer, ";" );
-			observation->frame = atoi( pch );
+			observation->frame = atof( pch );
 			pch = strtok( NULL, ";" );
-			observation->eye = atoi( pch );
+			observation->eye = atof( pch );
 			pch = strtok( NULL, ";" );
-			observation->forehead = atoi( pch );
+			observation->forehead = atof( pch );
 			pch = strtok( NULL, ";" );
-			observation->mouth = atoi( pch );
-			// print_set(observation);
+			observation->mouth = atof( pch );
+			print_set(observation);
 
 			// First data is saved
 			// so next data is not the
@@ -82,8 +82,8 @@ int main(int argc, char const *argv[])
 	forehead_max = find_max_value( start, "forehead" );
 	forehead_min = find_min_value( start, "forehead" );
 
-	// printf("max: %i\nmin: %i\n", eye_max, eye_min);
-	// printf("max: %i\nmin: %i\n", mouth_max, mouth_min);
-	// printf("max: %i\nmin: %i\n", forehead_max, forehead_min);
+	printf("max: %5.3f\nmin: %5.3f\n", eye_max, eye_min);
+	printf("max: %5.3f\nmin: %5.3f\n", mouth_max, mouth_min);
+	printf("max: %5.3f\nmin: %5.3f\n", forehead_max, forehead_min);
 	return 0;
 }

@@ -6,18 +6,18 @@
 struct set
 {
 	int frame;
-	int eye;
-	int forehead;
-	int mouth;
+	float eye;
+	float forehead;
+	float mouth;
 	struct set * prev;
 	struct set * next;
 };
 
 void print_set( struct set * obs) {
 	printf("---Set #%i---\n", obs->frame);
-	printf("Eye: %i\n", obs->eye);
-	printf("Forehead: %i\n", obs->forehead);
-	printf("Mouth: %i\n", obs->mouth);
+	printf("Eye: %5.3f\n", obs->eye);
+	printf("Forehead: %5.3f\n", obs->forehead);
+	printf("Mouth: %5.3f\n", obs->mouth);
 	printf("\n");
 }
 
@@ -31,19 +31,19 @@ void show_all_sets( struct set * ptr ) {
 /**
  * Find max value in all sets of a specific parameter
  * (eye | mouth | forehead). This function goes recursively
- * thru all sets and compares the values using fmax()
+ * thru all sets and compares the values using fmaxf()
  * @param  ptr    pointer of current check position
  * @param  string comparision string
- * @return int    max value or -1 if invalid
+ * @return float    max value or -1 if invalid
  */
-int find_max_value( struct set * ptr, char* string ) {
+float find_max_value( struct set * ptr, char* string ) {
 	if( ptr->next != NULL ) {
 		if ( strcmp( "eye", string ) == 0 ) {
-			return fmax( ptr->eye, find_max_value( ptr->next, "eye" ) );
+			return fmaxf( ptr->eye, find_max_value( ptr->next, "eye" ) );
 		} else if ( strcmp( "mouth", string ) == 0 ) {
-			return fmax( ptr->mouth, find_max_value( ptr->next, "mouth" ) );
+			return fmaxf( ptr->mouth, find_max_value( ptr->next, "mouth" ) );
 		} else if ( strcmp( "forehead", string ) == 0 ) {
-			return fmax( ptr->forehead, find_max_value( ptr->next, "forehead" ) );
+			return fmaxf( ptr->forehead, find_max_value( ptr->next, "forehead" ) );
 		} else {
 			printf("Error: Invalid string value\n");
 			return -1;
@@ -65,19 +65,19 @@ int find_max_value( struct set * ptr, char* string ) {
 /**
  * Find min value in all sets of a specific parameter
  * (eye | mouth | forehead). This function goes recursively
- * thru all sets and compares the values using fmin()
+ * thru all sets and compares the values using fminf()
  * @param  ptr    pointer of current check position
  * @param  string comparision string
- * @return int    min value or -1 if invalid
+ * @return float    min value or -1 if invalid
  */
-int find_min_value( struct set * ptr, char* string ) {
+float find_min_value( struct set * ptr, char* string ) {
 	if( ptr->next != NULL ) {
 		if ( strcmp( "eye", string ) == 0 ) {
-			return fmin( ptr->eye, find_min_value( ptr->next, "eye" ) );
+			return fminf( ptr->eye, find_min_value( ptr->next, "eye" ) );
 		} else if ( strcmp( "mouth", string ) == 0 ) {
-			return fmin( ptr->mouth, find_min_value( ptr->next, "mouth" ) );
+			return fminf( ptr->mouth, find_min_value( ptr->next, "mouth" ) );
 		} else if ( strcmp( "forehead", string ) == 0 ) {
-			return fmin( ptr->forehead, find_min_value( ptr->next, "forehead" ) );
+			return fminf( ptr->forehead, find_min_value( ptr->next, "forehead" ) );
 		} else {
 			printf("Error: Invalid string value\n");
 			return -1;
