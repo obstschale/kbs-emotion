@@ -146,7 +146,7 @@ int equalAlternatives(set *m1, set *m2)
 
 float getBasicMeasure(basicMeasure *m, set *p)
 {
-  basicMeasure *tmp;
+  // basicMeasure *tmp;
   float ret;
 
   if (emptyBasicMeasure(m))
@@ -191,7 +191,7 @@ float getBasicMeasure(basicMeasure *m, set *p)
 void addMeasureEntry(basicMeasure *m, set p, float v)
 {
   basicMeasure *tmp;
-  int i;
+  // int i;
 
   tmp = m;
 
