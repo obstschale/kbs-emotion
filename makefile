@@ -1,7 +1,7 @@
 # Makefile for KBS Project
 CC=gcc
-CFLAGS=-I
+CFLAGS=-lm -Wall
 
 all: kbs.c
-	$(CC) -o kbs kbs.c
+	$(CC) $(CFLAGS) -o kbs kbs.c
 	./kbs
