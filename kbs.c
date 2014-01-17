@@ -17,6 +17,8 @@ int main(int argc, char const *argv[])
 	struct set * temp;
 	char * pch;
 	int firstPtr = TRUE;
+	int eye_max, mouth_max, forehead_max;
+	int eye_min, mouth_min, forehead_min;
 
 	// open read only
 	fp = fopen("Files/E_013_Beispieldatei.csv","r");
@@ -68,6 +70,20 @@ int main(int argc, char const *argv[])
 		}
 	}
 
-	show_all_sets( start );
+	// show_all_sets( start );
+
+	// find min and max values of eye, mouth, and forehead
+	eye_max = find_max_value( start, "eye" );
+	eye_min = find_min_value( start, "eye" );
+
+	mouth_max = find_max_value( start, "mouth" );
+	mouth_min = find_min_value( start, "mouth" );
+
+	forehead_max = find_max_value( start, "forehead" );
+	forehead_min = find_min_value( start, "forehead" );
+
+	// printf("max: %i\nmin: %i\n", eye_max, eye_min);
+	// printf("max: %i\nmin: %i\n", mouth_max, mouth_min);
+	// printf("max: %i\nmin: %i\n", forehead_max, forehead_min);
 	return 0;
 }
