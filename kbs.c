@@ -29,6 +29,9 @@ int main(int argc, char const *argv[])
 	fp = fopen("Files/E_013_Testdatei.csv","r");
 	if (fp == NULL) {
 		perror( "Error opening file" );
+		printf("~~~Hit <Enter> to end the program~~~\n");
+		getc( stdin );
+		return 0;
 	} else {
 		start = (struct set*) malloc( sizeof(struct set) );
 		if (start == NULL) exit (1);
