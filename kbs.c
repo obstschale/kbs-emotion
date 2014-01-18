@@ -18,9 +18,7 @@ int main(int argc, char const *argv[])
 	struct set * temp = NULL;
 	char * pch = NULL;
 	int firstPtr = TRUE;
-	float eye_max, mouth_max, forehead_max;
-	float eye_min, mouth_min, forehead_min;
-	float eye_max_adjust, mouth_max_adjust, forehead_max_adjust;
+	struct exva exva;
 	float eye_value, mouth_value, forehead_value;
 	float pl[5];
 	char emotions[5][10] = {"fear", "surprise", "contempt", "disgust", "fury"};
@@ -79,36 +77,21 @@ int main(int argc, char const *argv[])
 
 	observation = start;
 
-	while ( observation->next != NULL ) {
+	calculate_extreme_values( &exva, start );
+
+	// while ( observation->next != NULL ) {
 		print_set( observation );
 		// show_all_sets( start );
 
-		// find min and max values of eye, mouth, and forehead
-		eye_max = find_max_value( start, "eye" );
-		eye_min = find_min_value( start, "eye" );
-		eye_max_adjust = eye_max - eye_min;
-
-		forehead_max = find_max_value( start, "forehead" );
-		forehead_min = find_min_value( start, "forehead" );
-		forehead_max_adjust = forehead_max - forehead_min;
-
-		mouth_max = find_max_value( start, "mouth" );
-		mouth_min = find_min_value( start, "mouth" );
-		mouth_max_adjust = mouth_max - mouth_min;
-
-		printf("max: %5.3f\tmin: %5.3f\tadjusted: %5.3f\n", eye_max, eye_min, eye_max_adjust);
-		printf("max: %5.3f\tmin: %5.3f\tadjusted: %5.3f\n", forehead_max, forehead_min, forehead_max_adjust);
-		printf("max: %5.3f\tmin: %5.3f\tadjusted: %5.3f\n", mouth_max, mouth_min, mouth_max_adjust);
-
 		// @TODO: calculate entry values for each pair
-		eye_value = observation->eye - eye_min;
-		forehead_value = observation->forehead - forehead_min;
-		mouth_value = observation->mouth - mouth_min;
+		eye_value = observation->eye - exva.eye_min;
+		forehead_value = observation->forehead - exva.forehead_min;
+		mouth_value = observation->mouth - exva.mouth_min;
 
 		// percentage values
-		float eye_per = eye_value / eye_max_adjust;
-		float forehead_per = forehead_value / forehead_max_adjust;
-		float mouth_per = mouth_value / mouth_max_adjust;
+		float eye_per = eye_value / exva.eye_max_adjust;
+		float forehead_per = forehead_value / exva.forehead_max_adjust;
+		float mouth_per = mouth_value / exva.mouth_max_adjust;
 		// inverse percentage values
 		float eye_per_inv = 1 - eye_per;
 		float forehead_per_inv = 1 - forehead_per;
@@ -205,7 +188,7 @@ int main(int argc, char const *argv[])
 		printf("~~~Hit <Enter> to continue~~~\n");
 		getc( stdin );
 		observation = observation->next;
-	}
+	// }
 
 	return 0;
 }
