@@ -11,10 +11,14 @@
 #ifndef FALSE
 #define FALSE 0
 #endif
+#ifndef VEC_SIZE
+#define VEC_SIZE 5
+#endif
 
 // int verbose = TRUE;
 /* option flags */
 struct flags {
+	int all;
 	int verbose;
 	char *file;
 };
@@ -43,8 +47,9 @@ struct exva {
 };
 
 void set_flag_default( struct flags *arguments ) {
+	arguments->all     = 0;
 	arguments->verbose = 0;
-	arguments->file = NULL;
+	arguments->file    = NULL;
 }
 
 void usage() {
@@ -197,6 +202,12 @@ struct set* find_frame( struct set * ptr, int search ) {
 	return ptr;
 }
 
+void reset_vector( int *vector, int size ) {
+	for (int i = 0; i < size; ++i) {
+		vector[i] = 0;
+	}
+}
+
 void calculate_evidence( struct exva * exva, struct set * set_ptr, struct flags *arguments ) {
 	int i;
 	float eye_value, mouth_value, forehead_value;
@@ -204,15 +215,22 @@ void calculate_evidence( struct exva * exva, struct set * set_ptr, struct flags 
 	float pl[5];
 	double max_emotion = pl[0];
 	int index = 0;
-	int eye_vector[5] = {0,0,0,0,0};
-	int forehead_vector[5] = {0,0,0,0,0};
-	int mouth_vector[5] = {0,0,0,0,0};
+	int eye_vector[VEC_SIZE];
+	int forehead_vector[VEC_SIZE];
+	int mouth_vector[VEC_SIZE];
 	basicMeasure m1, m2, m3, *res1, *res2;
 	set *p1, *p2, *p3;
 
 	printf("*** Hit <Enter> after each calculation to continue\n");
 	while ( set_ptr != NULL ) {
-	// set_ptr = find_frame( set_ptr, 23 );
+	// set_ptr = find_frame( set_ptr, 50 );
+
+		/* initilize or reset bit vectors for calc */
+		reset_vector( eye_vector, VEC_SIZE );
+		reset_vector( forehead_vector, VEC_SIZE );
+		reset_vector( mouth_vector, VEC_SIZE );
+		max_emotion = 0;
+		index = -1;
 
 		if ( arguments->verbose ) {
 			/* print set before calculating evidences */
@@ -331,10 +349,13 @@ void calculate_evidence( struct exva * exva, struct set * set_ptr, struct flags 
 			printf("#%2d: Probability of %5.3f%% that the emotion is %s\n", set_ptr->frame, max_emotion*100, emotions[index]);
 		}
 
-		printf("*** <ENTER> continute | Quit (q)");
-		if ( getc( stdin ) == 'q' ) {
-			exit(1);
+		if ( arguments->all != 1 ) {
+			printf("*** <ENTER> continute | Quit (q)");
+			if ( getc( stdin ) == 'q' ) {
+				exit(1);
+			}
 		}
+
 		set_ptr = set_ptr->next;
 	} // END while ( set_ptr->next != NULL ) 
 }

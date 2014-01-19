@@ -13,11 +13,14 @@ int main(int argc, char *const *argv)
 	/* get options from cmd */
 	struct flags arguments;
 	int opt;
-	const char *optString = "f:vh?";
+	const char *optString = "af:vh?";
 	set_flag_default( &arguments );
 
 	while( (opt = getopt(argc, argv, optString) ) != -1 ) {
 		switch (opt) {
+			case 'a':
+				arguments.all = 1;
+				break;
 			case 'f':
 				arguments.file = optarg;
 				break;
@@ -54,6 +57,7 @@ int main(int argc, char *const *argv)
 		// Read first line to skip titles
 		// loop start with first line of numbers
 		fscanf(fp, "%s", buffer);
+		printf("%s\n", buffer);
 
 		// loop thru file til EOF
 		while ( fscanf(fp, "%s", buffer) != EOF ) {
