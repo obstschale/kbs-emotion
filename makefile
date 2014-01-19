@@ -4,4 +4,3 @@ CFLAGS=-lm -Wall
 
 all: kbs.c
 	$(CC) $(CFLAGS) -o kbs kbs.c
-	./kbs
