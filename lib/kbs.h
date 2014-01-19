@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <unistd.h> /* for getopt */
 #include "dempster/dempster.c"
 
 #ifndef TRUE
@@ -10,8 +11,17 @@
 #ifndef FALSE
 #define FALSE 0
 #endif
+#ifndef VEC_SIZE
+#define VEC_SIZE 5
+#endif
 
-int verbose = TRUE;
+// int verbose = TRUE;
+/* option flags */
+struct flags {
+	int all;
+	int verbose;
+	char *file;
+};
 
 /* a set is one observation */
 struct set {
@@ -35,6 +45,23 @@ struct exva {
 	float mouth_min;
 	float mouth_max_adjust;
 };
+
+void set_flag_default( struct flags *arguments ) {
+	arguments->all     = 0;
+	arguments->verbose = 0;
+	arguments->file    = NULL;
+}
+
+void usage() {
+	fprintf(stderr, "usage: ./kbs [-v] -f FILE\n\n");
+	fprintf(stderr, "\t-v\t\tverbose output\n");
+
+	fprintf(stderr, "\t-f FILE\t\trelative file path to CSV file\n");
+
+	fprintf(stderr, "\t-h\t\tthis usage dialog\n");
+
+	fprintf(stderr, "\n");
+}
 
 void print_set( struct set * obs) {
 	printf("%-5s | %-5s | %-7s | %-7s\n", "Set #", "Eye", "Forehead", "Mouth");
@@ -137,7 +164,7 @@ float find_min_value( struct set * ptr, char* string ) {
  * @param exva  struct exva pointer which store all values
  * @param start first set
  */
-void calculate_extreme_values( struct exva * exva, struct set * start ) {
+void calculate_extreme_values( struct exva * exva, struct set * start, struct flags *arguments ) {
 	// find min and max values of eye, mouth, and forehead
 	exva->eye_max = find_max_value( start, "eye" );
 	exva->eye_min = find_min_value( start, "eye" );
@@ -151,7 +178,7 @@ void calculate_extreme_values( struct exva * exva, struct set * start ) {
 	exva->mouth_min = find_min_value( start, "mouth" );
 	exva->mouth_max_adjust = exva->mouth_max - exva->mouth_min;
 
-	if ( verbose ) {
+	if ( arguments->verbose ) {
 		printf("%9s %-7s | %-7s | %-7s\n", "", "Eye", "Forehead", "Mouth");
 		printf("%9s ", "max:");
 		printf("%07.2f | %07.2f  | %07.2f\n", exva->eye_max, exva->forehead_max, exva->mouth_max);
@@ -175,24 +202,37 @@ struct set* find_frame( struct set * ptr, int search ) {
 	return ptr;
 }
 
-void calculate_evidence( struct exva * exva, struct set * set_ptr ) {
+void reset_vector( int *vector, int size ) {
+	for (int i = 0; i < size; ++i) {
+		vector[i] = 0;
+	}
+}
+
+void calculate_evidence( struct exva * exva, struct set * set_ptr, struct flags *arguments ) {
 	int i;
 	float eye_value, mouth_value, forehead_value;
 	char emotions[5][10] = {"fear", "surprise", "contempt", "disgust", "fury"};
 	float pl[5];
 	double max_emotion = pl[0];
 	int index = 0;
-	int eye_vector[5] = {0,0,0,0,0};
-	int forehead_vector[5] = {0,0,0,0,0};
-	int mouth_vector[5] = {0,0,0,0,0};
+	int eye_vector[VEC_SIZE];
+	int forehead_vector[VEC_SIZE];
+	int mouth_vector[VEC_SIZE];
 	basicMeasure m1, m2, m3, *res1, *res2;
 	set *p1, *p2, *p3;
 
 	printf("*** Hit <Enter> after each calculation to continue\n");
-	// while ( set_ptr != NULL ) {
-	set_ptr = find_frame( set_ptr, 23 );
+	while ( set_ptr != NULL ) {
+	// set_ptr = find_frame( set_ptr, 50 );
 
-		if ( verbose ) {
+		/* initilize or reset bit vectors for calc */
+		reset_vector( eye_vector, VEC_SIZE );
+		reset_vector( forehead_vector, VEC_SIZE );
+		reset_vector( mouth_vector, VEC_SIZE );
+		max_emotion = 0;
+		index = -1;
+
+		if ( arguments->verbose ) {
 			/* print set before calculating evidences */
 			print_set( set_ptr );
 		}
@@ -211,7 +251,7 @@ void calculate_evidence( struct exva * exva, struct set * set_ptr ) {
 		float forehead_per_inv = 1 - forehead_per;
 		float mouth_per_inv = 1 - mouth_per;
 
-		if ( verbose ) {
+		if ( arguments->verbose ) {
 			/* print observation values, percentages and inverse */
 			printf("%9s %-6s | %7s | %-7s\n", "", "Eye", "Forehead", "Mouth");
 
@@ -288,11 +328,11 @@ void calculate_evidence( struct exva * exva, struct set * set_ptr ) {
 		res2 = getAccumulatedMeasure(res1,&m3);
 		// printBasicMeasure(res2);
 		
-		if ( verbose ) printf(  " Nr : Pl(x)  |  B(x)   |  Z(x) \n");
+		if ( arguments->verbose ) printf(  " Nr : Pl(x)  |  B(x)   |  Z(x) \n");
 
 		for (i=0;i<5;i++) {
 			/* print all evidences for all alternatives */
-			if ( verbose ) printf("[%d] : %5.3f  |  %5.3f  | %5.3f \n", i, plausibility(res2,i), singleBelief(res2,i), singleDoubt(res2,i));
+			if ( arguments->verbose ) printf("[%d] : %5.3f  |  %5.3f  | %5.3f \n", i, plausibility(res2,i), singleBelief(res2,i), singleDoubt(res2,i));
 			pl[i] = plausibility(res2,i);
 		}
 
@@ -301,7 +341,7 @@ void calculate_evidence( struct exva * exva, struct set * set_ptr ) {
 			index = (max_emotion > pl[i]) ? index : i;
 		}
 
-		if ( verbose ) {
+		if ( arguments->verbose ) {
 			/* print set and emotion */
 			print_set_emotion( set_ptr, max_emotion, emotions[index] );
 		} else {
@@ -309,8 +349,14 @@ void calculate_evidence( struct exva * exva, struct set * set_ptr ) {
 			printf("#%2d: Probability of %5.3f%% that the emotion is %s\n", set_ptr->frame, max_emotion*100, emotions[index]);
 		}
 
-		getc( stdin );
+		if ( arguments->all != 1 ) {
+			printf("*** <ENTER> continute | Quit (q)");
+			if ( getc( stdin ) == 'q' ) {
+				exit(1);
+			}
+		}
+
 		set_ptr = set_ptr->next;
-	// } // END while ( set_ptr->next != NULL ) 
+	} // END while ( set_ptr->next != NULL ) 
 }
 

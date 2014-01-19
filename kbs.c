@@ -1,6 +1,6 @@
 #include "lib/kbs.h"
 
-int main(int argc, char const *argv[])
+int main(int argc, char *const *argv)
 {
 	FILE *fp;
 	char buffer[80];
@@ -9,9 +9,39 @@ int main(int argc, char const *argv[])
 	char * pch = NULL;
 	int firstPtr = TRUE;
 	struct exva exva;
-	
+
+	/* get options from cmd */
+	struct flags arguments;
+	int opt;
+	const char *optString = "af:vh?";
+	set_flag_default( &arguments );
+
+	while( (opt = getopt(argc, argv, optString) ) != -1 ) {
+		switch (opt) {
+			case 'a':
+				arguments.all = 1;
+				break;
+			case 'f':
+				arguments.file = optarg;
+				break;
+			case 'v':
+				arguments.verbose = 1;
+				break;
+			case '?':
+			case 'h':
+			default:
+				usage();
+				return 1;
+		}
+	}
+
+	if ( arguments.file == NULL){
+		usage();
+		return 1;
+	}
+
 	// open read only
-	fp = fopen("Files/E_013_Testdatei.csv","r");
+	fp = fopen( arguments.file,"r" );
 	if (fp == NULL) {
 		perror( "Error opening file" );
 		printf("*** Hit <Enter> to end the program\n");
@@ -27,6 +57,7 @@ int main(int argc, char const *argv[])
 		// Read first line to skip titles
 		// loop start with first line of numbers
 		fscanf(fp, "%s", buffer);
+		printf("%s\n", buffer);
 
 		// loop thru file til EOF
 		while ( fscanf(fp, "%s", buffer) != EOF ) {
@@ -61,8 +92,11 @@ int main(int argc, char const *argv[])
 		}
 	}
 
-	calculate_extreme_values( &exva, start );
-	calculate_evidence( &exva, start );
+	calculate_extreme_values( &exva, start, &arguments );
+	calculate_evidence( &exva, start, &arguments );
+
+	/* close FILE */
+	fclose( fp );
 
 	return 0;
 }
