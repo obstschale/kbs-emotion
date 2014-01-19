@@ -40,8 +40,20 @@ void print_set( struct set * obs) {
 	printf("%-5s | %-5s | %-7s | %-7s\n", "Set #", "Eye", "Forehead", "Mouth");
 	printf("%5i | ", obs->frame);
 	printf("%4.2f | ", obs->eye);
-	printf("%6.2f   | ", obs->forehead);
+	printf("%7.2f  | ", obs->forehead);
 	printf("%4.2f\n", obs->mouth);
+	printf("\n");
+}
+
+void print_set_emotion( struct set * obs, double max_emotion, char emotion[] ) {
+	printf("\n");
+	printf("%-5s | %-5s | %-7s | %-7s | %-7s | %-7s\n", "Set #", "Eye", "Forehead", "Mouth", "highest Pl(x)", "Emotion");
+	printf("%5i | ", obs->frame);
+	printf("%4.2f | ", obs->eye);
+	printf("%7.2f  | ", obs->forehead);
+	printf("%4.2f   | ", obs->mouth);
+	printf("%4.2f          | ", max_emotion);
+	printf("%-7s\n", emotion);
 	printf("\n");
 }
 
@@ -154,13 +166,32 @@ void calculate_extreme_values( struct exva * exva, struct set * start ) {
 	}
 }
 
+struct set* find_frame( struct set * ptr, int search ) {
+
+	while( ptr->frame != search ) {
+		ptr = ptr->next;
+	}
+
+	return ptr;
+}
+
 void calculate_evidence( struct exva * exva, struct set * set_ptr ) {
 	int i;
 	float eye_value, mouth_value, forehead_value;
 	char emotions[5][10] = {"fear", "surprise", "contempt", "disgust", "fury"};
 	float pl[5];
+	double max_emotion = pl[0];
+	int index = 0;
+	int eye_vector[5] = {0,0,0,0,0};
+	int forehead_vector[5] = {0,0,0,0,0};
+	int mouth_vector[5] = {0,0,0,0,0};
+	basicMeasure m1, m2, m3, *res1, *res2;
+	set *p1, *p2, *p3;
 
-	// while ( set_ptr->next != NULL ) {
+	printf("*** Hit <Enter> after each calculation to continue\n");
+	// while ( set_ptr != NULL ) {
+	set_ptr = find_frame( set_ptr, 23 );
+
 		if ( verbose ) {
 			/* print set before calculating evidences */
 			print_set( set_ptr );
@@ -193,14 +224,11 @@ void calculate_evidence( struct exva * exva, struct set * set_ptr ) {
 			printf("\n");
 		}
 
-		int eye_vector[5] = {0,0,0,0,0};
-		int forehead_vector[5] = {0,0,0,0,0};
-		int mouth_vector[5] = {0,0,0,0,0};
 		// calculate bitvector
-		if ( eye_per > 0.6 ) {
+		if ( eye_per > 0.5 ) {
 			eye_vector[0] = 1;
 			eye_vector[1] = 1;
-		} else if ( eye_per < 0.4 ) {
+		} else if ( eye_per <= 0.5 ) {
 			eye_vector[2] = 1;
 			eye_vector[3] = 1;
 		} else{
@@ -210,10 +238,10 @@ void calculate_evidence( struct exva * exva, struct set * set_ptr ) {
 			eye_vector[3] = 1;
 		}
 
-		if ( forehead_per > 0.6 ) {
+		if ( forehead_per > 0.5 ) {
 			forehead_vector[0] = 1;
 			forehead_vector[1] = 1;
-		} else if ( forehead_per < 0.4 ) {
+		} else if ( forehead_per <= 0.5 ) {
 			forehead_vector[4] = 1;
 		} else {
 			forehead_vector[0] = 1;
@@ -221,9 +249,9 @@ void calculate_evidence( struct exva * exva, struct set * set_ptr ) {
 			forehead_vector[4] = 1;
 		}
 
-		if ( mouth_per > 0.6 ) {
+		if ( mouth_per > 0.5 ) {
 			mouth_vector[1] = 1;
-		} else if ( mouth_per < 0.4 ) {
+		} else if ( mouth_per <= 0.5 ) {
 			mouth_vector[3] = 1;
 			mouth_vector[4] = 1;
 		} else {
@@ -237,8 +265,6 @@ void calculate_evidence( struct exva * exva, struct set * set_ptr ) {
 		// const int entry2[5] = {0,0,0,0,1}; // Stirn
 		// const int entry3[5] = {0,0,0,1,1}; // Mund
 
-		basicMeasure m1, m2, m3, *res1, *res2;
-		set *p1, *p2, *p3;
 		p1 = createAlternatives((int *) eye_vector, 5);
 		p2 = createAlternatives((int *) forehead_vector, 5);
 		p3 = createAlternatives((int *) mouth_vector, 5);
@@ -270,17 +296,20 @@ void calculate_evidence( struct exva * exva, struct set * set_ptr ) {
 			pl[i] = plausibility(res2,i);
 		}
 
-		double max_emotion = pl[0];
-		int index = 0;
 		for ( i = 1; i < 5; ++i) {
 			max_emotion = (max_emotion > pl[i]) ? max_emotion : pl[i];
 			index = (max_emotion > pl[i]) ? index : i;
 		}
 
-		printf("[%i] %5.3f %s\n", index, max_emotion, emotions[index]);
-		
-		printf("*** Hit <Enter> to continue\n");
-		// getc( stdin );
+		if ( verbose ) {
+			/* print set and emotion */
+			print_set_emotion( set_ptr, max_emotion, emotions[index] );
+		} else {
+			/* just print emotion */
+			printf("#%2d: Probability of %5.3f%% that the emotion is %s\n", set_ptr->frame, max_emotion*100, emotions[index]);
+		}
+
+		getc( stdin );
 		set_ptr = set_ptr->next;
 	// } // END while ( set_ptr->next != NULL ) 
 }
