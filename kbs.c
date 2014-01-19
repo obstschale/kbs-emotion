@@ -91,5 +91,8 @@ int main(int argc, char *const *argv)
 	calculate_extreme_values( &exva, start, &arguments );
 	calculate_evidence( &exva, start, &arguments );
 
+	/* close FILE */
+	fclose( fp );
+
 	return 0;
 }
