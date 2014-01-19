@@ -53,12 +53,11 @@ void set_flag_default( struct flags *arguments ) {
 }
 
 void usage() {
-	fprintf(stderr, "usage: ./kbs [-v] -f FILE\n\n");
+	fprintf(stderr, "usage: ./kbs [-v] [-a] [-h] -f FILE\n\n");
 	fprintf(stderr, "\t-v\t\tverbose output\n");
-
-	fprintf(stderr, "\t-f FILE\t\trelative file path to CSV file\n");
-
+	fprintf(stderr, "\t-a\t\tcalculate all in one run. If -a is not given the user is asked to continue or quit after each calculation.\n");
 	fprintf(stderr, "\t-h\t\tthis usage dialog\n");
+	fprintf(stderr, "\t-f FILE\t\trelative file path to CSV file\n");
 
 	fprintf(stderr, "\n");
 }
