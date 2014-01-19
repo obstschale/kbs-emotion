@@ -331,7 +331,10 @@ void calculate_evidence( struct exva * exva, struct set * set_ptr, struct flags 
 			printf("#%2d: Probability of %5.3f%% that the emotion is %s\n", set_ptr->frame, max_emotion*100, emotions[index]);
 		}
 
-		getc( stdin );
+		printf("*** <ENTER> continute | Quit (q)");
+		if ( getc( stdin ) == 'q' ) {
+			exit(1);
+		}
 		set_ptr = set_ptr->next;
 	} // END while ( set_ptr->next != NULL ) 
 }
