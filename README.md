@@ -30,3 +30,6 @@ The program is written in C and takes a CSV file (see `Files/`) with measured da
 
 ### Makefile
 A simple `makefile` is provided to compile the project and for easy execution with both files.
+
+### Dempster Lib
+This program uses a self-coded Dempster Library, which can be found in `lib/`. This code is written bei Mr. Reichardt, who was our Teacher in Knowledge-Base-Systems. 
