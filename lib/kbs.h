@@ -202,7 +202,9 @@ struct set* find_frame( struct set * ptr, int search ) {
 }
 
 void reset_vector( int *vector, int size ) {
-	for (int i = 0; i < size; ++i) {
+	int i;
+
+	for (i = 0; i < size; ++i) {
 		vector[i] = 0;
 	}
 }
